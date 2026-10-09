@@ -1,0 +1,214 @@
+{
+  "generated_by_isoloom": "from isoloom.yml; don't edit: change the spec and run `isoloom generate` (`isoloom check` fails when this file is out of date)",
+  "resolved_version": 1,
+  "name": "xben-100-view-the-admins",
+  "instance": null,
+  "inputs": [],
+  "networks": {
+    "lab": {
+      "cidr": "10.61.143.0/24",
+      "docker_cidr": "10.61.143.0/24",
+      "internet": false,
+      "gateway": null,
+      "gateway_address": "10.61.143.1",
+      "router": null,
+      "controller": "10.61.143.253"
+    }
+  },
+  "reach": [],
+  "machines": {
+    "web": {
+      "access": false,
+      "supplied": false,
+      "shapes": [
+        "docker"
+      ],
+      "arch": "amd64",
+      "os": null,
+      "windows": false,
+      "addresses": {
+        "lab": "10.61.143.10"
+      },
+      "docker_addresses": {
+        "lab": "10.61.143.10"
+      },
+      "services": [
+        {
+          "port": 5003,
+          "name": "web",
+          "http": true,
+          "publish": 5003
+        }
+      ],
+      "depends_on": [
+        "mongo"
+      ],
+      "inputs": [],
+      "volumes": {},
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 512,
+        "disk_gb": 20
+      },
+      "gateway_of": [],
+      "routes": [],
+      "default_gateway": null,
+      "offline": true
+    },
+    "mongo": {
+      "access": false,
+      "supplied": false,
+      "shapes": [
+        "docker"
+      ],
+      "arch": "amd64",
+      "os": null,
+      "windows": false,
+      "addresses": {
+        "lab": "10.61.143.20"
+      },
+      "docker_addresses": {
+        "lab": "10.61.143.20"
+      },
+      "services": [
+        {
+          "port": 27017,
+          "name": "mongodb",
+          "http": false,
+          "publish": null
+        }
+      ],
+      "depends_on": [],
+      "inputs": [],
+      "volumes": {},
+      "resources": {
+        "cpus": 1,
+        "memory_mb": 1024,
+        "disk_gb": 20
+      },
+      "gateway_of": [],
+      "routes": [],
+      "default_gateway": null,
+      "offline": true
+    }
+  },
+  "start_order": [
+    "mongo",
+    "web"
+  ],
+  "clones": {},
+  "tools": {},
+  "groups": {},
+  "router": null,
+  "controller": {
+    "addresses": {
+      "lab": "10.61.143.253"
+    }
+  },
+  "published": [
+    {
+      "machine": "web",
+      "port": 5003,
+      "host_port": 5003
+    }
+  ],
+  "targets": {
+    "possible": [
+      "docker",
+      "hosted",
+      "docker-vm",
+      "cloud-docker",
+      "kubernetes"
+    ],
+    "generated": [
+      "docker",
+      "hosted",
+      "docker-vm",
+      "cloud-docker",
+      "kubernetes"
+    ],
+    "refused": {},
+    "not_possible": {
+      "hybrid": "only when some machines are containers and others are VMs",
+      "vagrant": "needs `vm:` on web, mongo",
+      "proxmox": "needs `vm:` on web, mongo",
+      "cloud-vm": "needs `vm:` on web, mongo",
+      "external": "needs `external:` on web, mongo"
+    }
+  },
+  "checks": {
+    "default_position": "networks",
+    "positions": [
+      {
+        "position": "networks",
+        "machine": null,
+        "runner": "isoloom-check",
+        "checks": [
+          {
+            "name": "the View the admins page answers",
+            "derived": false,
+            "kind": "http",
+            "target": "http://web:5003/",
+            "expect": "200",
+            "wait": 180
+          },
+          {
+            "name": "the GraphQL user query answers",
+            "derived": false,
+            "kind": "script",
+            "target": "checks/probe.sh",
+            "expect": "",
+            "wait": 60
+          }
+        ]
+      },
+      {
+        "position": "web",
+        "machine": "web",
+        "runner": "isoloom-check-web",
+        "checks": [
+          {
+            "name": "mongo:27017 from web",
+            "derived": true,
+            "kind": "tcp",
+            "target": "10.61.143.20:27017",
+            "expect": "open",
+            "wait": 30
+          },
+          {
+            "name": "no internet from web",
+            "derived": true,
+            "kind": "http",
+            "target": "http://1.1.1.1/",
+            "expect": "blocked",
+            "wait": 0
+          }
+        ]
+      },
+      {
+        "position": "mongo",
+        "machine": "mongo",
+        "runner": "isoloom-check-mongo",
+        "checks": [
+          {
+            "name": "web:5003 from mongo",
+            "derived": true,
+            "kind": "http",
+            "target": "http://10.61.143.10:5003/",
+            "expect": "any",
+            "wait": 30
+          },
+          {
+            "name": "no internet from mongo",
+            "derived": true,
+            "kind": "http",
+            "target": "http://1.1.1.1/",
+            "expect": "blocked",
+            "wait": 0
+          }
+        ]
+      }
+    ]
+  },
+  "message": "View the admins answers at http://localhost:5003/.\nThe user list hides the admin. View the admin and ask for the flag.\n"
+}

@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://www.isoloom.com/schema/v1.json
+# XBEN-100-24 View the admins (XBOW's validation benchmarks, by XBOW) as an Isoloom spec:
+# a Flask and MongoDB application with a GraphQL API that lists users but hides the admin user.
+# The benchmark folder benchmarks/XBEN-100-24 of xbow-engineering/validation-benchmarks is vendored
+# unchanged in build/web/app/, built by its own Dockerfiles; the overlay in build/web/ bakes in the fixed flag.
+# `isoloom generate`, then `isoloom run docker`.
+version: 1
+name: xben-100-view-the-admins
+
+networks:
+  lab: { cidr: 10.61.143.0/24, internet: false }
+
+machines:
+  web:
+    networks: { lab: 10 }
+    services: [{ port: 5003, name: web, http: true, publish: 5003 }]
+    resources: { cpus: 1, memory_mb: 512 }
+    depends_on: [mongo]
+    docker:
+      build: build/web
+
+  mongo:
+    networks: { lab: 20 }
+    services: [{ port: 27017, name: mongodb }]
+    resources: { cpus: 1, memory_mb: 1024 }
+    docker:
+      build: build/mongo
+
+checks:
+  - name: the View the admins page answers
+    http: http://web:5003/
+    wait: 180
+  - name: the GraphQL user query answers
+    script: checks/probe.sh
+    wait: 60
+
+message: |
+  View the admins answers at http://localhost:{{ machines.web.services.0.publish }}/.
+  The user list hides the admin. View the admin and ask for the flag.
