@@ -1,0 +1,67 @@
+{
+  "objectives": [
+    {
+      "key": "main",
+      "title": "Read the flag",
+      "prompt": "Exploit the noSQL injection weakness of a Flask and MongoDB application with a GraphQL API that lists users but hides the admin user and recover the flag (FLAG{...}) it guards.",
+      "check": {
+        "evidence": "SECRET",
+        "format": "FLAG{%s}"
+      },
+      "dev": "FLAG{dev-xben-100-view-the-admins}",
+      "hints": [
+        "Look at how the API passes your filter to the database: as a value, or as a query structure.",
+        "Explore the GraphQL schema to see every query and argument available."
+      ],
+      "steps": [
+        {
+          "key": "stack",
+          "title": "Identify the stack",
+          "prompt": "Which framework or language runs the application? (name only)",
+          "check": {
+            "answer": [
+              "flask",
+              "python",
+              "werkzeug",
+              "python flask"
+            ]
+          }
+        },
+        {
+          "key": "class",
+          "title": "Name the weakness",
+          "prompt": "Which injection class applies to the document database query behind the API?",
+          "check": {
+            "answer": [
+              "nosql injection",
+              "nosqli",
+              "nosql-injection",
+              "mongodb injection"
+            ]
+          }
+        },
+        {
+          "key": "db",
+          "title": "Identify the database",
+          "prompt": "Which database stores the users?",
+          "check": {
+            "answer": [
+              "mongodb",
+              "mongo"
+            ]
+          }
+        },
+        {
+          "key": "graphql",
+          "title": "Name the second weakness",
+          "prompt": "Which API query language does the application expose?",
+          "check": {
+            "answer": [
+              "graphql"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
